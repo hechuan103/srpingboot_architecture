@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hc.architecture.biz.permission.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="com.hc.architecture.biz.permission.entity.User">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="password" property="password"/>
+        <result column="mobile_phone" property="mobilePhone"/>
+        <result column="email" property="email"/>
+        <result column="address" property="address"/>
+        <result column="salt" property="salt"/>
+        <result column="status" property="status"/>
+        <result column="create_tm" property="createTm"/>
+        <result column="update_tm" property="updateTm"/>
+    </resultMap>
+
+    <!--用户列表展示对象-->
+    <resultMap id="userListVo" type="com.hc.architecture.biz.permission.vo.UserVo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="mobile_phone" property="mobilePhone"/>
+        <result column="email" property="email"/>
+        <result column="address" property="address"/>
+        <result column="status" property="status"/>
+        <result column="create_tm" property="createTm"/>
+        <result column="update_tm" property="updateTm"/>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        id, `name`, password, mobile_phone, email,address, salt, status, create_tm, update_tm
+    </sql>
+
+    <!--查询字段-->
+    <sql id="page_column">
+        id, `name`, password, mobile_phone, email,address, salt, status, create_tm
+    </sql>
+    <!--查询条件-->
+    <sql id="search_condition">
+        <if test="name != null and name != '' ">
+            and `name` like concat('%',#{name},'%')
+        </if>
+        <if test="email !=null and email !='' ">
+            and email = #{email}
+        </if>
+        <if test="code !=null and code !='' ">
+            and code = #{code}
+        </if>
+        <if test="status !=null  ">
+            and status = #{status}
+        </if>
+    </sql>
+    <!--登录查询-->
+    <select id="loginSearchUser" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select id,`name`,password,status,salt from user where `name` = #{userName}
+    </select>
+    <!--统计符合条件的用户数量-->
+    <select id="selectCountUser" parameterType="map" resultType="integer">
+        select
+        count(1)
+        from user where 1=1
+        <include refid="search_condition"/>
+    </select>
+
+    <!--分页查询用户列表-->
+    <select id="selectUserPage" resultMap="userListVo" parameterType="map">
+        select
+        <include refid="page_column"/>
+        from user where 1=1
+        <include refid="search_condition"/>
+        limit #{start},#{pageSize}
+    </select>
+
+    <!--查询用户-->
+    <select id="selectUserById" parameterType="integer" resultMap="BaseResultMap">
+    select password,salt from user where id = #{currentUserId}
+    </select>
+    <!--查询用户id-->
+    <select id="selectIdByUserName" parameterType="string" resultType="integer">
+        select id from user where `name` = #{userName}
+    </select>
+
+    <!--插入用户-->
+    <insert id="insert" parameterType="com.hc.architecture.biz.permission.entity.User" keyProperty="id" useGeneratedKeys="true">
+        insert into user (`name`, password,
+        mobile_phone, email, address, salt,
+        status, create_tm, update_tm
+        )
+        values (#{name}, #{password},
+        #{mobilePhone},#{email}, #{address}, #{salt},
+        #{status}, #{createTm},#{updateTm}
+        )
+    </insert>
+    <!--更新用户状态-->
+    <update id="updateUserStatus" parameterType="map">
+        update user set status=#{status} where id = #{id}
+    </update>
+
+    <!--重置密码-->
+    <update id="restPassword" parameterType="map">
+        update user set password = #{password},salt = #{salt}  where id=#{id}
+    </update>
+
+
+    <!--更新用户-->
+    <update id="updateByPrimaryKey" parameterType="com.hc.architecture.biz.permission.entity.User">
+        update user
+        <set>
+            <if test="name !=null and name !=''">
+                `name`= #{name},
+            </if>
+            <if test="mobilePhone !=null and mobilePhone!=''">
+                mobile_phone = #{mobilePhone},
+            </if>
+            <if test="address !=null and address !=''">
+                address = #{address},
+            </if>
+            <if test="email !=null and email !=''">
+                email = #{email},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            update_tm = #{updateTm}
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

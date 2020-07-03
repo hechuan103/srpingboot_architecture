@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hc.architecture.biz.permission.mapper.RolePermissionMapper">
+    <resultMap id="BaseResultMap" type="com.hc.architecture.biz.permission.entity.RolePermission">
+        <id column="id" property="id"/>
+        <result column="role_id" property="roleId"/>
+        <result column="menu_id" property="menuId"/>
+        <result column="role_code" property="roleCode"/>
+        <result column="status" property="status"/>
+        <result column="create_tm" property="createTm"/>
+        <result column="update_tm" property="updateTm"/>
+    </resultMap>
+
+    <!--角色对应的权限-->
+    <resultMap id="role_permi_menu" type="com.hc.architecture.biz.permission.bo.UserPermissionBo">
+
+        <result column="role_id" property="roleId" />
+        <result column="menu_id" property="menuId" />
+        <result column="role_code" property="roleCode" />
+        <result column="i18n_code" property="i18nCode" />
+        <result column="type" property="type" />
+        <result column="name" property="menuName" />
+        <result column="icon" property="icon" />
+        <result column="parent_id" property="parentId" />
+        <result column="code" property="menuCode" />
+        <result column="sort" property="sort" />
+        <result column="url" property="path" />
+
+
+
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, role_id, menu_id, role_code, status, create_tm, update_tm
+    </sql>
+    <!--查询列-->
+    <sql id="page_column">
+         role_id, menu_id, role_code, i18n_code,icon,url,`type`,m.name,m.parent_id,code,m.sort
+    </sql>
+
+    <!--查询角色权限列表-->
+    <select id="selectRolePermissionsByRoleId" parameterType="list" resultMap="role_permi_menu">
+        select
+        <include refid="page_column"/>
+        from role_permission r left join menu m on r.menu_id = m.id where role_id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        and r.status = 1
+    </select>
+
+    <!-- 查询单个角色的权限id -->
+    <select id="selectSignalRolePermission" resultType="java.lang.Integer" parameterType="int">
+        select menu_id from role_permission where role_id = #{roleId}
+    </select>
+
+    <!--插入角色权限-->
+    <insert id="insert" parameterType="com.hc.architecture.biz.permission.entity.RolePermission">
+        insert into role_permission (role_id, menu_id,
+         role_code, status,
+        create_tm, update_tm)
+        values (#{roleId}, #{menuId},
+        #{roleCode}, #{status},
+        #{createTm}, #{updateTm})
+    </insert>
+
+    <insert id="batchInsert" parameterType="list" keyProperty="">
+        insert into role_permission (role_id, menu_id, role_code, status, create_tm, update_tm)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.roleId},
+                #{item.menuId},
+                #{item.roleCode},
+                #{item.status},
+                #{item.createTm},
+                #{item.updateTm}
+            )
+        </foreach>
+
+    </insert>
+
+    <!--删除角色的权限-->
+    <delete id="deletePermissionByRoleId" parameterType="int">
+        delete from role_permission where role_id = #{roleId}
+    </delete>
+
+    <!--  更新角色对应权限状态 -->
+    <update id="updateRolePerStatus" parameterType="map">
+        update role_permission set status = #{status} where
+        <if test="roleId !=null and roleId != ''">
+            role_id = #{roleId}
+        </if>
+    </update>
+
+    <!--  批量更新状态 -->
+    <update id="updateRoleMenuStatus" parameterType="map">
+        update role_permission set status = #{status} where menu_id in
+        <foreach collection="menuIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+
+    </update>
+
+
+</mapper>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hc.architecture.biz.permission.mapper.RoleMapper">
+    <resultMap id="BaseResultMap" type="com.hc.architecture.biz.permission.entity.Role">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="status" property="status"/>
+        <result column="create_tm" property="createTm"/>
+        <result column="update_tm" property="updateTm"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, `name`, code, status, create_tm, update_tm
+    </sql>
+
+    <!--查询字段-->
+    <sql id="page_column">
+        id, `name`, code, status, create_tm
+    </sql>
+    <!--查询条件-->
+    <sql id="search_condition">
+        <if test="name != null and name !=''">
+            `name` like concat('%','#{name}','%')
+        </if>
+        <if test="code != null and code != ''">
+            and code = #{code}
+        </if>
+        <if test="status != null ">
+            and status = #{status}
+        </if>
+    </sql>
+
+    <!-- 查询单个role  -->
+    <select id="selectById" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="page_column"/>
+        from role
+        where id = #{id}
+    </select>
+    <!--统计角色数量-->
+    <select id="selectRoleCount" parameterType="map" resultType="int">
+        select count(1) from role where 1=1
+        <include refid="search_condition"/>
+    </select>
+    <!--分页查询role-->
+    <select id="selectRoleByPage" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="page_column"/>
+        from role where 1=1
+        <include refid="search_condition"/>
+        limit #{start},#{pageSize}
+    </select>
+    <!--查询角色名称-->
+    <select id="selectRoleByName" parameterType="string" resultType="com.hc.architecture.biz.permission.entity.Role">
+        select id,name,code from role where name = #{name}
+    </select>
+    <!--查询所有可用角色-->
+    <select id="selectAllRole" resultMap="BaseResultMap">
+        select id,name from role where status =1
+    </select>
+
+    <!--插入角色-->
+    <insert id="insert" parameterType="com.hc.architecture.biz.permission.entity.Role" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into role (`name`, code,
+                          status, create_tm, update_tm)
+        values (#{name}, #{code},
+                #{status}, #{createTm}, #{updateTm})
+    </insert>
+
+    <!--更新角色状态-->
+    <update id="updateRoleStatus" parameterType="map">
+        update role
+        set status = #{status}
+        where id = #{roleId}
+    </update>
+
+
+    <update id="updateByPrimaryKey" parameterType="com.hc.architecture.biz.permission.entity.Role">
+        update role
+        <set>
+            <if test="name !=null and name !=''">
+                `name` = #{name},
+            </if>
+            <if test="code !=null and code !=''">
+                code = #{code}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

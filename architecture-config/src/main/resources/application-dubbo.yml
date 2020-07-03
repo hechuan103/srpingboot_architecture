@@ -1,0 +1,57 @@
+#dubbo 默认启动配置
+spring:
+  dubbo:
+    application:
+      name: architecture
+      owner: architecture
+      #消费者检测
+    consumer:
+      check: false
+      #dubbo 注册中心配置
+    registry:
+      address: zookeeper://127.0.0.1:2181
+      protocol: zookeeper
+      check: false
+    #dubbo 服务暴露端口协议
+    protocol:
+      name: dubbo
+      port: 20880
+    provider:
+      version: 1.0.0-dev
+
+
+#test环境dubbo
+---
+spring:
+  profiles: test
+  dubbo:
+    #注册中心
+    registry:
+      address:
+      port:
+      check:
+    #dubbo 服务暴露端口协议
+    protocl:
+      name:
+      port:
+    #版本
+    provider:
+      version: 1.0.0-test
+
+#release 环境
+---
+spring:
+  profiles: test
+  dubbo:
+    #注册中心
+    registry:
+      address:
+      port:
+      check:
+    #dubbo 服务暴露端口协议
+    protocl:
+      name:
+      port:
+    #版本
+    provider:
+      version: 1.0.0-release

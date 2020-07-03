@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hc.architecture.biz.permission.mapper.MenuMapper">
+    <resultMap id="BaseResultMap" type="com.hc.architecture.biz.permission.entity.Menu">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="url" property="url"/>
+        <result column="code" property="code"/>
+        <result column="i18n_code" property="i18nCode"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="type" property="type"/>
+        <result column="icon" property="icon"/>
+        <result column="status" property="status"/>
+        <result column="sort" property="sort"/>
+        <result column="create_tm" property="createTm"/>
+        <result column="update_tm" property="updateTm"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, `name`, url, code, i18n_code,parent_id, `type`, icon, status, sort, create_tm, update_tm
+    </sql>
+    <!--查询列-->
+    <sql id="page_column">
+        id,`name`,url,code,i18n_code,parent_id,`type`,icon,status,sort,create_tm
+    </sql>
+    <!--查询所有菜单的id，name，parent_id-->
+    <sql id="menu_name_id">
+        id,`name`,parent_id,i18n_code
+    </sql>
+
+    <!--查询条件-->
+    <sql id="search_condition">
+
+        <if test="name != null and name !=''">
+            and `name` like concat('%',#{name},'%')
+        </if>
+        <if test="code != null and code !=''">
+            and `code` like concat('%',#{code},'%')
+        </if>
+        <if test="status != null ">
+            and `status` = #{status}
+        </if>
+        <if test="url != null and url !='' ">
+            and url = #{url}
+        </if>
+    </sql>
+
+    <!-- 查询单个menu -->
+    <select id="selectById" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from menu
+        where id = #{id} and status = 1
+    </select>
+
+    <!--查询满足条件的菜单数量-->
+    <select id="selectCountMenu" parameterType="map" resultType="int">
+        select count(1) from menu where 1=1
+        <include refid="search_condition"/>
+
+    </select>
+    <!--菜单列表-->
+    <select id="selectMenuByPage" resultMap="BaseResultMap" parameterType="map">
+        select
+        <include refid="page_column"/>
+        from menu where 1=1
+        <include refid="search_condition"/>
+        limit #{start},#{pageSize}
+    </select>
+
+    <!--查询所有菜单-->
+    <select id="selectAllMenu" resultMap="BaseResultMap">
+        select id, parent_id, name, icon, type, sort, i18n_code
+        from menu
+        where status = 1;
+    </select>
+
+    <select id="selectAllMenuName" resultMap="BaseResultMap">
+        select
+        <include refid="menu_name_id"/>
+        from menu where status = 1 ;
+    </select>
+    <!--查询菜单的id和parentId-->
+    <select id="selectAllMenuId" resultMap="BaseResultMap">
+        select id, parent_id
+        from menu
+        where status = 1;
+    </select>
+
+
+    <select id="selectMenuByUrl" resultType="integer">
+        select count(1)
+        from menu
+        where url = #{url}
+    </select>
+    <!--查询菜单的子菜单-->
+    <select id="selectMenuIdByParentId" resultType="integer" parameterType="integer">
+        select id
+        from menu
+        where parent_id = #{menuId}
+    </select>
+
+
+    <!--插入menu-->
+    <insert id="insert" parameterType="com.hc.architecture.biz.permission.entity.Menu" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into menu (`name`, url,
+                          code, i18n_code, parent_id, `type`,
+                          icon, status, sort, create_tm, update_tm)
+        values (#{name}, #{url},
+                #{code}, #{i18nCode}, #{parentId}, #{type},
+                #{icon}, #{status}, #{sort}, #{createTm}, #{updateTm})
+    </insert>
+
+    <!--更新菜单的状态-->
+    <update id="updateMenuStatus" parameterType="map">
+        update menu
+        set status = #{status}
+        where id in
+        <foreach collection="menuIds" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!--更新menu -->
+    <update id="updateById" parameterType="com.hc.architecture.biz.permission.entity.Menu">
+        update menu
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="url != null">
+                url = #{url},
+            </if>
+            <if test="code != null">
+                code = #{code},
+            </if>
+            <if test="i18nCode != null">
+                i18n_code = #{i18nCode},
+            </if>
+            <if test="parentId != null">
+                parent_id = #{parentId},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="icon != null">
+                icon = #{icon},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="sort != null">
+                sort = #{sort},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,66 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.mysql.jdbc.Driver
+      url:
+      username:
+      password:
+      initial-size: 10
+      max-active: 100
+      min-idle: 10
+      max-wait: 60000
+      pool-prepared-statements: false
+      max-open-prepared-statements: -1
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      max-evictable-idle-time-millis: 600000
+      validation-query: SELECT 1 FROM DUAL
+      validation-query-timeout: 1
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      connection-init-sqls: set names utf8mb4
+
+#mybatis
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.hc.architecture.biz.**.entity
+  #原生配置
+  configuration:
+    map-underscore-to-camel-case: true
+    local-cache-scope: statement
+    cache-enabled: false
+    call-setters-on-nulls: true
+    jdbc-type-for-null: 'null'
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    #数据库相关配置
+    db-config:
+      logic-delete-value: 0
+      logic-not-delete-value: 1
+      id-type: auto
+    banner: false
+
+---
+spring:
+  profiles: dev
+  datasource:
+    druid:
+      url: jdbc:mysql://127.0.0.1:3306/i18n?useSSL=false&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull&amp;autoReconnect=true&amp;allowMultiQueries=true
+      username: username
+      password: password
+
+---
+spring:
+  profiles: daily
+
+
+---
+spring:
+  profiles: pre
+
+---
+spring:
+  profiles: publish

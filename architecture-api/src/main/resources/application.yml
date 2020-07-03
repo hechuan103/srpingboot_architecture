@@ -1,0 +1,53 @@
+#server
+server:
+  port: 8080
+  servlet:
+    context-path: /architecture-api
+  # ssl 证书配置
+#  ssl:
+#    protocol: TLS
+#    key-store: classpath:
+#    key-store-password:
+#    key-store-type: JKS
+
+
+
+#spring
+spring:
+  profiles:
+    active: dev
+    include: dubbo, redis, jdbc
+  application:
+    name: architecture-api
+  #国际化语言配置
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+  #object 转json 过滤null
+  #jackson:
+    #default-property-inclusion: non_empty
+
+# 日志目录配置
+logging:
+  file:
+    path: ./logs/
+
+#httpclient超时配置
+httpclient:
+  config:
+    read-timeout: 2000
+    connect-timeout: 5000
+
+#knife4j开关
+knife4j:
+  production: false
+
+
+---
+spring:
+  profiles: release
+knife4j:
+  production: false
+
+
+

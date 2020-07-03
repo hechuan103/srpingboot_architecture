@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hc.architecture.biz.permission.mapper.RoleToUserMapper" >
+  <resultMap id="BaseResultMap" type="com.hc.architecture.biz.permission.entity.UserRole" >
+    <id column="id" property="id"  />
+    <result column="role_id" property="roleId"  />
+    <result column="user_id" property="userId"  />
+    <result column="create_tm" property="createTm" />
+    <result column="update_tm" property="updateTm"  />
+  </resultMap>
+
+  <resultMap id="role_user_page_result" type="com.hc.architecture.biz.permission.bo.RoleToUserBo">
+    <result column="name" property="userName" />
+    <result column="email" property="email" />
+    <result column="id" property="userId" />
+    <result column="status" property="status" />
+
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, role_id, user_id, create_tm, update_tm
+  </sql>
+
+  <sql id="user_role_condition">
+     role_id = #{roleId}
+    <if test="name !=null and name !='' ">
+      and u.name = #{name}
+    </if>
+  </sql>
+
+  <sql id="role_user_columns">
+    u.name,u.id,u.email,u.status
+  </sql>
+
+  <!--查询角色对应的用户总数-->
+  <select id="selectRoleUserCount" parameterType="map" resultType="int">
+    select count(1) from user_role ur left join user u on ur.user_id = u.id  where  <include refid="user_role_condition" />
+  </select>
+  <!--分页查询角色对应用户的分页列表-->
+  <select id="selectRoleUserPage" parameterType="map" resultMap="role_user_page_result">
+    select <include refid="role_user_columns" /> from user_role ur left join user u on ur.user_id = u.id where  <include refid="user_role_condition" />
+     limit #{start},#{pageSize}
+  </select>
+  <!--查询用户的角色id-->
+  <select id="selectRoleIdByUserId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+    select role_id from user_role where user_id = #{id}
+  </select>
+  <!--删除角色下的某个用户-->
+  <delete id="deleteUserById" parameterType="map" >
+    delete from user_role
+    where user_id = #{userId} and role_id = #{roleId}
+  </delete>
+  <!--删除角色下的某个用户-->
+  <delete id="deleteUserByUserId" parameterType="map" >
+    delete from user_role
+    where user_id = #{userId}
+  </delete>
+
+
+  <!--批量插入用户角色信息-->
+  <insert id="batchInsert" parameterType="list">
+    insert into user_role ( role_id, user_id,
+                            create_tm, update_tm)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+       #{item.roleId},#{item.userId},#{item.createTm},#{item.updateTm}
+      )
+    </foreach>
+  </insert>
+
+  <insert id="insert" parameterType="com.hc.architecture.biz.permission.entity.UserRole" >
+    insert into user_role ( role_id, user_id,
+      create_tm, update_tm)
+    values ( #{roleId}, #{userId},
+      #{createTm}, #{updateTm})
+  </insert>
+
+</mapper>
